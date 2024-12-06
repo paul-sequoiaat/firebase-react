@@ -4,7 +4,7 @@ import Login from "./login/login";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
-  const [user, setUser] = useState(sessionStorage.getItem("user") || null);
+  const [user, setUser] = useState(JSON.parse(sessionStorage.getItem("user")) || null);
 
   useEffect(() => {
     listenForNotifications((notification) => {
@@ -21,7 +21,7 @@ function App() {
         <Login setUser={setUser} />
       ) : (
         <div>
-          <h1>Firebase Notifications</h1>
+          <h1>{user.name}'s Firebase Notifications</h1>
       
           <ul>
             {notifications.map((notification, index) => (
