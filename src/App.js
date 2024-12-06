@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { requestFirebaseToken, listenForNotifications } from "./firebase/firebase-config";
+import { listenForNotifications } from "./firebase/firebase-config";
+import Login from "./login/login";
 
 function App() {
   const [notifications, setNotifications] = useState([]);
-  const [fcmToken, setFcmToken] = useState(null);
+  const [user, setUser] = useState(sessionStorage.getItem("user") || null);
 
   useEffect(() => {
-    const getToken = async () => {
-      const token = await requestFirebaseToken();
-      if (token) {
-        setFcmToken(token);
-      }
-    };
-
-    getToken();
-
     listenForNotifications((notification) => {
       setNotifications((prevNotifications) => [
         ...prevNotifications,
@@ -25,22 +17,21 @@ function App() {
 
    return (
     <div>
-      <h1>Firebase Notifications</h1>
-      
-      {/* Display the FCM Token */}
-      {fcmToken && (
+      {!user ? (
+        <Login setUser={setUser} />
+      ) : (
         <div>
-          <h2>Your FCM Token</h2>
-          <p>{fcmToken}</p>
-        </div>
-      )}
+          <h1>Firebase Notifications</h1>
       
-      <ul>
-        {notifications.map((notification, index) => (
-          <li key={index}>{notification}</li>
-        ))}
-      </ul>
-    </div>
+          <ul>
+            {notifications.map((notification, index) => (
+            <li key={index}>{notification}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
   );
 }
 

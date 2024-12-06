@@ -18,7 +18,6 @@ export const requestFirebaseToken = async () => {
   try {
     const token = await getToken(messaging, { vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY });
     if (token) {
-      console.log("FCM Token:", token);
       return token;
     } else {
       console.error("No FCM token available");
@@ -28,9 +27,9 @@ export const requestFirebaseToken = async () => {
   }
 };
 
-  export const listenForNotifications = (callback) => {
-    onMessage(messaging, (payload) => {
-      console.log("Message received. ", payload);
-      callback(payload);
-    });
-  };
+export const listenForNotifications = (callback) => {
+  onMessage(messaging, (payload) => {
+    console.log("Message received. ", payload);
+    callback(payload);
+  });
+};
