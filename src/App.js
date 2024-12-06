@@ -1,50 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { requestForToken, onMessageListener } from "./firebase/firebase-config";
+import { requestFirebaseToken, listenForNotifications } from "./firebase/firebase-config";
 
 function App() {
-  const [token, setToken] = useState("");
-  const [notification, setNotification] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [fcmToken, setFcmToken] = useState(null);
 
-  // Generate and display the token
   useEffect(() => {
-    requestForToken(setToken)
-      .then((currentToken) => {
-        if (currentToken) {
-          setToken(currentToken);
-          console.log("Token generated:", currentToken);
-        } else {
-          console.log("No registration token available. Request permission to generate one.");
-        }
-      })
-      .catch((err) => {
-        console.error("An error occurred while retrieving token:", err);
-      });
+    const getToken = async () => {
+      const token = await requestFirebaseToken();
+      if (token) {
+        setFcmToken(token);
+      }
+    };
+
+    getToken();
+
+    listenForNotifications((notification) => {
+      setNotifications((prevNotifications) => [
+        ...prevNotifications,
+        `${notification.notification.title} - ${notification.notification.body}`,
+      ]);
+    });
   }, []);
 
-  // Listen for incoming messages
-  useEffect(() => {
-    onMessageListener()
-      .then((payload) => {
-        console.log("Message received: ", payload);
-        setNotification(payload.notification);
-      })
-      .catch((err) => console.error("Failed to receive message:", err));
-  }, []);
-
-  return (
+   return (
     <div>
-      <h1>Push Notification Demo</h1>
-      {token ? (
-        <p>Your token: <code>{token}</code></p>
-      ) : (
-        <p>Generating token... Please wait or enable notifications.</p>
-      )}
-      {notification && (
+      <h1>Firebase Notifications</h1>
+      
+      {/* Display the FCM Token */}
+      {fcmToken && (
         <div>
-          <h2>{notification.title}</h2>
-          <p>{notification.body}</p>
+          <h2>Your FCM Token</h2>
+          <p>{fcmToken}</p>
         </div>
       )}
+      
+      <ul>
+        {notifications.map((notification, index) => (
+          <li key={index}>{notification}</li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -14,23 +14,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-export const requestForToken = (setToken) => {
-    return getToken(messaging, { vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY })
-      .then((currentToken) => {
-        if (currentToken) {
-          setToken(currentToken);
-        } else {
-          console.log("No registration token available.");
-        }
-      })
-      .catch((err) => {
-        console.error("Error getting token: ", err);
-      });
-  };
-  
-  export const onMessageListener = () =>
-    new Promise((resolve) => {
-      onMessage(messaging, (payload) => {
-        resolve(payload);
-      });
+export const requestFirebaseToken = async () => {
+  try {
+    const token = await getToken(messaging, { vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY });
+    if (token) {
+      console.log("FCM Token:", token);
+      return token;
+    } else {
+      console.error("No FCM token available");
+    }
+  } catch (error) {
+    console.error("Error getting FCM token", error);
+  }
+};
+
+  export const listenForNotifications = (callback) => {
+    onMessage(messaging, (payload) => {
+      console.log("Message received. ", payload);
+      callback(payload);
     });
+  };
